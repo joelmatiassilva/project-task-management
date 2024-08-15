@@ -1,2 +1,2 @@
 ## Installation
-Para iniciar las pruebas ejecutar el archivo start-project.sh
+Para iniciar el modo desarrollo ejecutar el archivo start-project.sh
