@@ -11,8 +11,7 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
     disableErrorMessages: false,
     exceptionFactory: (errors) => {
-      console.log('Validation errors:', JSON.stringify(errors, null, 2));
-      // Aquí puedes personalizar el mensaje de error si lo deseas
+      console.error('Validation errors:', JSON.stringify(errors, null, 2));
     },
   }));
 

@@ -10,6 +10,8 @@ services:
     environment:
       - NODE_ENV=development
       - MONGODB_URI=mongodb://mongodb:27017/taskmanagement
+      - JWT_SECRET=hola
+      - LOG_LEVEL=debug npm run start:dev
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules

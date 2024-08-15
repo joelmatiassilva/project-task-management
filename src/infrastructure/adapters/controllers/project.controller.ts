@@ -44,12 +44,7 @@ export class ProjectController {
     @Req() req: Request
   ) {
     this.logger.log(`Adding task to project ${projectId}`);
-    this.logger.debug(`Full path: ${req.path}`);
-    this.logger.debug(`Base URL: ${req.baseUrl}`);
-    this.logger.debug(`Original URL: ${req.originalUrl}`);
-    this.logger.debug(`Task DTO: ${JSON.stringify(createTaskDto)}`);
     try {
-      //createTaskDto.projectId = projectId;
       const result = await this.projectService.addTaskToProject(projectId, createTaskDto);
       this.logger.log(`Task added successfully: ${JSON.stringify(result)}`);
       return result;
@@ -63,8 +58,7 @@ export class ProjectController {
   @ApiOperation({ summary: 'Get a project with its tasks and users' })
   @ApiResponse({ status: 200, description: 'Return the project with its tasks and users.' })
   async getProjectWithTasksAndUsers(@Param('id') id: string) {
-    console.log("id: %o", id)
-    this.logger.log(`joel ${id}`);
+    this.logger.log(`getProjectWithTasksAndUsers ${id}`);
     return this.projectService.getProjectWithTasksAndUsers(id);
   }
 
