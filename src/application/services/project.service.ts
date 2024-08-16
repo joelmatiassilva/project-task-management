@@ -5,6 +5,7 @@ import { CreateProjectDto } from '../dtos/create-project.dto';
 import { CreateTaskDto } from '../dtos/create-task.dto';
 import { Project } from '../../domain/entities/project.entity';
 import { Task } from '../../domain/entities/task.entity';
+import { UpdateProjectDto } from '../dtos/update-project.dto';
 import { Types } from 'mongoose';
 
 @Injectable()
@@ -66,5 +67,26 @@ export class ProjectService {
     this.logger.log(`Retrieved ${tasks.length} tasks for project ${projectId}`);
 
     return tasks;
+  }
+
+  async updateProject(projectId: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
+    this.logger.log(`Updating project ${projectId}`);
+    const updatedProject = await this.projectRepository.update(projectId, updateProjectDto);
+    if (!updatedProject) {
+      this.logger.warn(`Project with ID "${projectId}" not found`);
+      throw new NotFoundException(`Project with ID "${projectId}" not found`);
+    }
+    this.logger.log(`Project ${projectId} updated successfully`);
+    return updatedProject;
+  }
+
+  async deleteProject(projectId: string): Promise<void> {
+    this.logger.log(`Deleting project ${projectId}`);
+    const result = await this.projectRepository.delete(projectId);
+    if (!result) {
+      this.logger.warn(`Project with ID "${projectId}" not found`);
+      throw new NotFoundException(`Project with ID "${projectId}" not found`);
+    }
+    this.logger.log(`Project ${projectId} deleted successfully`);
   }
 }

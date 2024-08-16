@@ -23,11 +23,10 @@ export class CreateTaskDto {
   @IsDateString()
   dueDate?: Date;
 
-  /*
+
   @ApiProperty()
   @IsMongoId()
   projectId: string;
-*/
 
   @ApiProperty({ required: false })
   @IsOptional()

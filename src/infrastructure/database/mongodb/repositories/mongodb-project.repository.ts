@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Project } from '../../../../domain/entities/project.entity';
 import { CreateProjectDto } from '../../../../application/dtos/create-project.dto';
+import { UpdateProjectDto } from '../../../../application/dtos/update-project.dto';
 
 @Injectable()
 export class MongoDBProjectRepository {
@@ -51,5 +52,13 @@ export class MongoDBProjectRepository {
       throw new NotFoundException(`Project with ID "${projectId}" not found`);
     }
     return project;
+  }
+
+  async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
+    return this.projectModel.findByIdAndUpdate(id, updateProjectDto, { new: true }).exec();
+  }
+
+  async delete(id: string): Promise<Project> {
+    return this.projectModel.findByIdAndDelete(id).exec();
   }
 }

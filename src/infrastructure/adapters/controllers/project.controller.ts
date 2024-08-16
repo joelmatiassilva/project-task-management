@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Logger, Req } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put, Body, Param, UseGuards, Logger, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ProjectService } from '../../../application/services/project.service';
 import { CreateProjectDto } from '../../../application/dtos/create-project.dto';
 import { CreateTaskDto } from '../../../application/dtos/create-task.dto';
+import { UpdateProjectDto } from '../../../application/dtos/update-project.dto';
 import { JwtAuthGuard } from '../../../infrastructure/auth/jwt-auth.guard';
 
 @ApiTags('projects')
@@ -67,13 +68,42 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'Returns all tasks for the specified project.' })
   async getProjectTasks(@Param('projectId') projectId: string) {
     this.logger.log(`Getting tasks for project ${projectId}`);
-    
     try {
       const tasks = await this.projectService.getProjectTasks(projectId);
       this.logger.log(`Retrieved ${tasks.length} tasks for project ${projectId}`);
       return tasks;
     } catch (error) {
       this.logger.error(`Error getting tasks for project: ${error.message}`);
+      throw error;
+    }
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update a project' })
+  @ApiResponse({ status: 200, description: 'The project has been successfully updated.' })
+  async updateProject(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
+    this.logger.log(`Updating project ${id}`);
+    try {
+      const result = await this.projectService.updateProject(id, updateProjectDto);
+      this.logger.log(`Project updated successfully: ${JSON.stringify(result)}`);
+      return result;
+    } catch (error) {
+      this.logger.error(`Error updating project: ${error.message}`);
+      throw error;
+    }
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a project' })
+  @ApiResponse({ status: 200, description: 'The project has been successfully deleted.' })
+  async deleteProject(@Param('id') id: string) {
+    this.logger.log(`Deleting project ${id}`);
+    try {
+      const result = await this.projectService.deleteProject(id);
+      this.logger.log(`Project deleted successfully`);
+      return { message: 'Project deleted successfully' };
+    } catch (error) {
+      this.logger.error(`Error deleting project: ${error.message}`);
       throw error;
     }
   }

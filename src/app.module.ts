@@ -5,17 +5,17 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ProjectController } from './infrastructure/adapters/controllers/project.controller';
 import { AuthController } from './infrastructure/adapters/controllers/auth.controller';
+import { TaskController } from './infrastructure/adapters/controllers/task.controller';
 import { ProjectService } from './application/services/project.service';
 import { AuthService } from './application/services/auth.service';
+import { TaskService } from './application/services/task.service';
 import { MongoDBProjectRepository } from './infrastructure/database/mongodb/repositories/mongodb-project.repository';
 import { MongoDBTaskRepository } from './infrastructure/database/mongodb/repositories/mongodb-task.repository';
 import { User, UserSchema } from './domain/entities/user.entity';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { Task, TaskSchema } from './domain/entities/task.entity';
 import { Project, ProjectSchema } from './domain/entities/project.entity';
-import { TaskService } from './application/services/task.service';
 import { RequestLoggerMiddleware } from './infrastructure/middlewares/equest-logger.middleware';
-
 
 @Module({
   imports: [
@@ -27,12 +27,12 @@ import { RequestLoggerMiddleware } from './infrastructure/middlewares/equest-log
       }),
       inject: [ConfigService],
     }),
-    // Otros módulos aquí
     MongooseModule.forFeature([
       { name: Project.name, schema: ProjectSchema },
       { name: User.name, schema: UserSchema },
       { name: Task.name, schema: TaskSchema },
-    ]), PassportModule,
+    ]),
+    PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -42,8 +42,15 @@ import { RequestLoggerMiddleware } from './infrastructure/middlewares/equest-log
       inject: [ConfigService],
     }),
   ],
-  controllers: [ProjectController, AuthController],
-  providers: [ProjectService, AuthService, MongoDBProjectRepository, MongoDBTaskRepository, JwtStrategy, TaskService],
+  controllers: [ProjectController, AuthController, TaskController], // Añadido TaskController
+  providers: [
+    ProjectService,
+    AuthService,
+    TaskService,
+    MongoDBProjectRepository,
+    MongoDBTaskRepository,
+    JwtStrategy,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

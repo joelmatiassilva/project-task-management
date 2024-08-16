@@ -16,7 +16,8 @@ export class MongoDBTaskRepository {
   }
 
   async findByProjectId(projectId: string): Promise<Task[]> {
-    return this.taskModel.find({ projectId: new Types.ObjectId(projectId) }).exec();
+    const datos = await this.taskModel.find({projectId: projectId  }).exec();
+    return this.taskModel.find({ projectId: projectId }).exec();
   }
 
   async findByUserId(userId: string): Promise<Task[]> {
@@ -33,5 +34,12 @@ export class MongoDBTaskRepository {
       throw new NotFoundException(`Task with ID "${id}" not found`);
     }
     return task;
+  }
+
+  async delete(id: string): Promise<void> {
+    const result = await this.taskModel.deleteOne({ _id: id }).exec();
+    if (result.deletedCount === 0) {
+      throw new NotFoundException(`Task with ID "${id}" not found`);
+    }
   }
 }
