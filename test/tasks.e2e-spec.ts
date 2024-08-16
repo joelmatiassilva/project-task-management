@@ -13,6 +13,7 @@ describe('Tasks CRUD', () => {
   let mongoConnection: Connection;
   let jwtToken: string;
   let projectId: string;
+  let userId: string;
 
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create();
@@ -31,9 +32,10 @@ describe('Tasks CRUD', () => {
     mongoConnection = moduleFixture.get<Connection>(getConnectionToken());
 
     // Register and login to get JWT token
-    await request(app.getHttpServer())
+    const registerResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({ email: 'testuser@example.com', password: 'testpassword' });
+    userId = registerResponse.body.userId;
 
     const loginResponse = await request(app.getHttpServer())
       .post('/auth/login')
@@ -146,5 +148,84 @@ describe('Tasks CRUD', () => {
       .set('Authorization', `Bearer ${jwtToken}`);
 
     expect(getResponse.status).toBe(HttpStatus.NOT_FOUND);
+  });
+
+  it('should assign a user to a task', async () => {
+    const createResponse = await request(app.getHttpServer())
+      .post('/tasks')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ 
+        title: 'Task to Assign', 
+        description: 'To be assigned',
+        projectId: projectId
+      });
+
+    const taskId = createResponse.body._id;
+    const assignResponse = await request(app.getHttpServer())
+      .put(`/tasks/${taskId}/assign/${userId}`)
+      .set('Authorization', `Bearer ${jwtToken}`);
+
+    expect(assignResponse.status).toBe(HttpStatus.OK);
+    expect(assignResponse.body.assignedTo).toEqual(userId);
+    const getResponse = await request(app.getHttpServer())
+      .get(`/tasks/${taskId}`)
+      .set('Authorization', `Bearer ${jwtToken}`);
+
+    expect(getResponse.status).toBe(HttpStatus.OK);
+    expect(getResponse.body.assignedTo).toEqual(userId);
+
+  });
+
+  it('should remove user assignment from a task', async () => {
+    const createResponse = await request(app.getHttpServer())
+      .post('/tasks')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ 
+        title: 'Task to Unassign', 
+        description: 'To be unassigned',
+        projectId: projectId
+      });
+
+    const taskId = createResponse.body._id;
+
+    await request(app.getHttpServer())
+      .put(`/tasks/${taskId}/assign/${userId}`)
+      .set('Authorization', `Bearer ${jwtToken}`);
+
+    const removeResponse = await request(app.getHttpServer())
+      .delete(`/tasks/${taskId}/assign`)
+      .set('Authorization', `Bearer ${jwtToken}`);
+    expect(removeResponse.status).toBe(HttpStatus.OK);
+    expect(removeResponse.body.assignedTo).toBeNull();
+    
+    const getResponse = await request(app.getHttpServer())
+      .get(`/tasks/${taskId}`)
+      .set('Authorization', `Bearer ${jwtToken}`);
+
+    expect(getResponse.status).toBe(HttpStatus.OK);
+    expect(getResponse.body.assignedTo).toBeNull();
+
+  });
+
+  it('should get a task by id', async () => {
+    const createResponse = await request(app.getHttpServer())
+      .post('/tasks')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ 
+        title: 'Task to Get', 
+        description: 'This task will be retrieved',
+        projectId: projectId
+      });
+
+    const taskId = createResponse.body._id;
+    const getResponse = await request(app.getHttpServer())
+      .get(`/tasks/${taskId}`)
+      .set('Authorization', `Bearer ${jwtToken}`);
+
+    expect(getResponse.status).toBe(HttpStatus.OK);
+    expect(getResponse.body._id).toEqual(taskId);
+    expect(getResponse.body.title).toEqual('Task to Get');
+    expect(getResponse.body.description).toEqual('This task will be retrieved');
+    expect(getResponse.body.projectId).toEqual(projectId);
   });
 });

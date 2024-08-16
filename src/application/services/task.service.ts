@@ -15,6 +15,15 @@ export class TaskService {
     return this.taskRepository.create(createTaskDto, projectId);
   }
 
+  async getTaskById(id: string): Promise<Task> {
+    this.logger.log(`Getting task with id ${id}`);
+    const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new NotFoundException(`Task with ID "${id}" not found`);
+    }
+    return task;
+  }
+
   async getTasksByProjectId(projectId: string): Promise<Task[]> {
     this.logger.log(`Getting tasks for project ${projectId}`);
     return this.taskRepository.findByProjectId(projectId);
@@ -22,14 +31,6 @@ export class TaskService {
 
   async getTasksByUserId(userId: string): Promise<Task[]> {
     return this.taskRepository.findByUserId(userId);
-  }
-
-  async assignTaskToUser(taskId: string, userId: string): Promise<Task> {
-    const task = await this.taskRepository.findById(taskId);
-    if (!task) {
-      throw new NotFoundException(`Task with ID "${taskId}" not found`);
-    }
-    return this.taskRepository.update(taskId, { assignedTo: new Types.ObjectId(userId) });
   }
 
   async updateTask(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
@@ -48,12 +49,32 @@ export class TaskService {
     return this.taskRepository.update(id, updateData);
   }
 
-async deleteTask(id: string): Promise<void> {
-  this.logger.log(`Deleting task ${id}`);
-  const task = await this.taskRepository.findById(id);
-  if (!task) {
-    throw new NotFoundException(`Task with ID "${id}" not found`);
+  async deleteTask(id: string): Promise<void> {
+    this.logger.log(`Deleting task ${id}`);
+    const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new NotFoundException(`Task with ID "${id}" not found`);
+    }
+    await this.taskRepository.delete(id);
   }
-  await this.taskRepository.delete(id);
-}
+
+  async assignTaskToUser(taskId: string, userId: string): Promise<Task> {
+    this.logger.log(`Assigning task ${taskId} to user ${userId}`);
+    const task = await this.taskRepository.findById(taskId);
+    if (!task) {
+      throw new NotFoundException(`Task with ID "${taskId}" not found`);
+    }
+    
+    return this.taskRepository.update(taskId, { assignedTo: new Types.ObjectId(userId) });
+  }
+
+  async removeUserFromTask(taskId: string): Promise<Task> {
+    this.logger.log(`Removing user assignment from task ${taskId}`);
+    const task = await this.taskRepository.findById(taskId);
+    if (!task) {
+      throw new NotFoundException(`Task with ID "${taskId}" not found`);
+    }
+    
+    return this.taskRepository.update(taskId, { assignedTo: null });
+  }
 }

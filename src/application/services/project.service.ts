@@ -27,7 +27,7 @@ export class ProjectService {
   async getAllProjects(): Promise<Project[]> {
     return this.projectRepository.findAll();
   }
-
+/*
   async addTaskToProject(projectId: string, createTaskDto: CreateTaskDto): Promise<Task> {
     //this.logger.log(`Adding task to project ${createTaskDto.projectId}`);
     this.logger.debug(`Task DTO 2: ${JSON.stringify(createTaskDto)}`);
@@ -43,6 +43,7 @@ export class ProjectService {
     await this.projectRepository.addTaskToProject(projectId, task._id as unknown as Types.ObjectId);
     return task;
   }
+  */
 
   async getProjectWithTasksAndUsers(projectId: string): Promise<Omit<Project, 'tasks'> & { tasks: Task[], users: any[] }> {
     const project = await this.projectRepository.findByIdWithUsers(projectId);

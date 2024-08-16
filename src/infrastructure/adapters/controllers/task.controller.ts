@@ -61,4 +61,20 @@ export class TaskController {
     this.logger.log(`Assigning task ${id} to user ${userId}`);
     return this.taskService.assignTaskToUser(id, userId);
   }
+
+  @Delete(':id/assign')
+  @ApiOperation({ summary: 'Remove user assignment from a task' })
+  @ApiResponse({ status: 200, description: 'The user assignment has been successfully removed from the task.' })
+  async removeUserFromTask(@Param('id') id: string) {
+    this.logger.log(`Removing user assignment from task ${id}`);
+    return this.taskService.removeUserFromTask(id);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a task by id' })
+  @ApiResponse({ status: 200, description: 'Return the task with the specified id.' })
+  async getTaskById(@Param('id') id: string) {
+    this.logger.log(`Getting task with id ${id}`);
+    return this.taskService.getTaskById(id);
+  }
 }

@@ -42,6 +42,7 @@ export class MongoDBProjectRepository {
     return project;
   }
 
+  /*
   async addTaskToProject(projectId: string, taskId: Types.ObjectId): Promise<Project> {
     const project = await this.projectModel.findByIdAndUpdate(
       projectId,
@@ -53,6 +54,7 @@ export class MongoDBProjectRepository {
     }
     return project;
   }
+*/
 
   async update(id: string, updateProjectDto: UpdateProjectDto): Promise<Project> {
     return this.projectModel.findByIdAndUpdate(id, updateProjectDto, { new: true }).exec();

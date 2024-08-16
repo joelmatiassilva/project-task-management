@@ -35,7 +35,7 @@ export class ProjectController {
   async addUserToProject(@Param('id') id: string, @Param('userId') userId: string) {
     return this.projectService.addUserToProject(id, userId);
   }
-
+/*
   @Post(':projectId/tasks')
   @ApiOperation({ summary: 'Add a task to a project' })
   @ApiResponse({ status: 201, description: 'The task has been successfully added to the project.' })
@@ -54,6 +54,7 @@ export class ProjectController {
       throw error;
     }
   }
+*/
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a project with its tasks and users' })

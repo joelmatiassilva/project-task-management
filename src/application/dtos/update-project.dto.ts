@@ -18,10 +18,11 @@ export class UpdateProjectDto {
   @IsMongoId({ each: true })
   users?: string[];
 
+  /*
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()
   @IsArray()
   @IsMongoId({ each: true })
   tasks?: string[];
-
+  */
 }
