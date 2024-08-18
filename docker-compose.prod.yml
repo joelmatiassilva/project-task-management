@@ -7,7 +7,6 @@ services:
       dockerfile: Dockerfile-prod
     image: my-nestjs-app:latest
     container_name: nestjs_app
-    restart: always
     ports:
       - "80:3000"
     environment:
@@ -20,7 +19,6 @@ services:
   mongodb:
     image: mongo:latest
     container_name: mongodb
-    restart: always
     volumes:
       - mongodb_data:/data/db
     ports:

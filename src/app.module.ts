@@ -16,11 +16,14 @@ import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { Task, TaskSchema } from './domain/entities/task.entity';
 import { Project, ProjectSchema } from './domain/entities/project.entity';
 import { RequestLoggerMiddleware } from './infrastructure/middlewares/equest-logger.middleware';
+import {PingController} from './infrastructure/adapters/controllers/ping.controller';
+import { MongooseConfigService } from './mongoose-config';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRootAsync({
+      useClass: MongooseConfigService,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
@@ -42,7 +45,7 @@ import { RequestLoggerMiddleware } from './infrastructure/middlewares/equest-log
       inject: [ConfigService],
     }),
   ],
-  controllers: [ProjectController, AuthController, TaskController], // Añadido TaskController
+  controllers: [ProjectController, AuthController, TaskController, PingController],
   providers: [
     ProjectService,
     AuthService,

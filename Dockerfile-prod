@@ -1,5 +1,5 @@
 # Usa una imagen base de Node.js
-FROM node:18-alpine AS builder
+FROM node:18 AS builder
 
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Usa una imagen más ligera para producción
-FROM node:18-alpine AS production
+FROM node:18 AS production
 
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
