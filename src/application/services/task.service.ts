@@ -1,14 +1,19 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger, Inject } from '@nestjs/common';
 import { MongoDBTaskRepository } from '../../infrastructure/database/mongodb/repositories/mongodb-task.repository';
 import { CreateTaskDto } from '../dtos/create-task.dto';
 import { UpdateTaskDto } from '../dtos/update-task.dto';
 import { Task, TaskStatus } from '../../domain/entities/task.entity';
 import { Types } from 'mongoose';
+import { ClientProxy, MessagePattern, Payload } from '@nestjs/microservices';
 
 @Injectable()
 export class TaskService {
   private readonly logger = new Logger(TaskService.name);
-  constructor(private taskRepository: MongoDBTaskRepository) {}
+  constructor(
+    private taskRepository: MongoDBTaskRepository,
+    @Inject('KAFKA')
+    private readonly kafka: ClientProxy,
+  ) {}
 
   async createTask(createTaskDto: CreateTaskDto, projectId: string): Promise<Task> {
     this.logger.debug(`TaskService createTask: ${JSON.stringify(createTaskDto)}`);
@@ -63,6 +68,16 @@ export class TaskService {
     const task = await this.taskRepository.findById(taskId);
     if (!task) {
       throw new NotFoundException(`Task with ID "${taskId}" not found`);
+    }
+    try {
+      let message: String = `Se te asignó la tarea: "${taskId}"`
+      let user: string = "joelsilva.1987@gmail.com";
+      this.kafka.emit("task",{
+        message,
+        user
+      });
+    } catch (error) {
+      this.logger.error(`Error emit task ${userId}`);
     }
     
     return this.taskRepository.update(taskId, { assignedTo: new Types.ObjectId(userId) });
