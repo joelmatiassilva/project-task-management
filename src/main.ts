@@ -50,6 +50,7 @@ async function bootstrap() {
     .setDescription('API for managing projects and tasks')
     .setVersion('1.2')
     .addTag('tasks')
+    .addBearerAuth()
     .build();
 
     const document = SwaggerModule.createDocument(app, config);
