@@ -1,6 +1,8 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDateString, IsMongoId } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDateString, IsMongoId, ValidateIf } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { TaskStatus } from '../../domain/entities/task.entity';
+import { Transform } from 'class-transformer';
+import { Types } from 'mongoose';
 
 export class CreateTaskDto {
   @ApiProperty()
@@ -30,6 +32,13 @@ export class CreateTaskDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
+  @Transform(({ value }) => {
+    if (Types.ObjectId.isValid(value)) {
+      return value;
+    }
+    return null;
+  })
+  @ValidateIf((o) => o.assignedTo !== null)
   @IsMongoId()
   assignedTo?: string;
 }
