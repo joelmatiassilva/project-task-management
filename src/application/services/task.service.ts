@@ -70,11 +70,13 @@ export class TaskService {
       throw new NotFoundException(`Task with ID "${taskId}" not found`);
     }
     try {
-      let message: String = `Se te asignó la tarea: "${taskId}"`
-      let user: string = "joelsilva.1987@gmail.com";
+      let body: String = `Se te asignó la tarea: "${taskId}"`;
+      let to: string = "joelsilva.1987@gmail.com";
+      let subject: string = "Tareas";
       this.kafka.emit("task",{
-        message,
-        user
+        body,
+        to,
+        subject
       });
     } catch (error) {
       this.logger.error(`Error emit task ${userId}`);
@@ -89,7 +91,18 @@ export class TaskService {
     if (!task) {
       throw new NotFoundException(`Task with ID "${taskId}" not found`);
     }
-    
+    try {
+      let body: String = `Se te retiró la tarea: "${taskId}"`;
+      let to: string = "joelsilva.1987@gmail.com";
+      let subject: string = "Tareas";
+      this.kafka.emit("task",{
+        body,
+        to,
+        subject
+      });
+    } catch (error) {
+      this.logger.error(`Error emit task ${taskId}`);
+    }
     return this.taskRepository.update(taskId, { assignedTo: null });
   }
 }
