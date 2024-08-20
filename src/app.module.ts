@@ -16,8 +16,9 @@ import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { Task, TaskSchema } from './domain/entities/task.entity';
 import { Project, ProjectSchema } from './domain/entities/project.entity';
 import { RequestLoggerMiddleware } from './infrastructure/middlewares/equest-logger.middleware';
-import {PingController} from './infrastructure/adapters/controllers/ping.controller';
+import { PingController}  from './infrastructure/adapters/controllers/ping.controller';
 import { MongooseConfigService } from './mongoose-config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -44,6 +45,28 @@ import { MongooseConfigService } from './mongoose-config';
       }),
       inject: [ConfigService],
     }),
+    ClientsModule.registerAsync([
+      {
+        name: 'KAFKA',
+        imports: [ConfigModule],
+        useFactory: async (configService: ConfigService) => ({
+          transport: Transport.KAFKA,
+          options: {
+            client: {
+              clientId: configService.get<string>('KAFKA_CLIENT_ID'),
+              brokers: [configService.get<string>('KAFKA_BROKER')],
+              ssl: true,
+              sasl: {
+                mechanism: 'plain',
+                username: configService.get<string>('KAFKA_USERNAME'),
+                password: configService.get<string>('KAFKA_PASSWORD'),
+              },
+            },
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
   ],
   controllers: [ProjectController, AuthController, TaskController, PingController],
   providers: [

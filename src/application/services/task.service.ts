@@ -1,14 +1,19 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger, Inject } from '@nestjs/common';
 import { MongoDBTaskRepository } from '../../infrastructure/database/mongodb/repositories/mongodb-task.repository';
 import { CreateTaskDto } from '../dtos/create-task.dto';
 import { UpdateTaskDto } from '../dtos/update-task.dto';
 import { Task, TaskStatus } from '../../domain/entities/task.entity';
 import { Types } from 'mongoose';
+import { ClientProxy, MessagePattern, Payload } from '@nestjs/microservices';
 
 @Injectable()
 export class TaskService {
   private readonly logger = new Logger(TaskService.name);
-  constructor(private taskRepository: MongoDBTaskRepository) {}
+  constructor(
+    private taskRepository: MongoDBTaskRepository,
+    @Inject('KAFKA')
+    private readonly kafka: ClientProxy,
+  ) {}
 
   async createTask(createTaskDto: CreateTaskDto, projectId: string): Promise<Task> {
     this.logger.debug(`TaskService createTask: ${JSON.stringify(createTaskDto)}`);
@@ -64,6 +69,18 @@ export class TaskService {
     if (!task) {
       throw new NotFoundException(`Task with ID "${taskId}" not found`);
     }
+    try {
+      let body: String = `Se te asignó la tarea: "${taskId}"`;
+      let to: string = "joelsilva.1987@gmail.com";
+      let subject: string = "Tareas";
+      this.kafka.emit("task",{
+        body,
+        to,
+        subject
+      });
+    } catch (error) {
+      this.logger.error(`Error emit task ${userId}`);
+    }
     
     return this.taskRepository.update(taskId, { assignedTo: new Types.ObjectId(userId) });
   }
@@ -74,7 +91,18 @@ export class TaskService {
     if (!task) {
       throw new NotFoundException(`Task with ID "${taskId}" not found`);
     }
-    
+    try {
+      let body: String = `Se te retiró la tarea: "${taskId}"`;
+      let to: string = "joelsilva.1987@gmail.com";
+      let subject: string = "Tareas";
+      this.kafka.emit("task",{
+        body,
+        to,
+        subject
+      });
+    } catch (error) {
+      this.logger.error(`Error emit task ${taskId}`);
+    }
     return this.taskRepository.update(taskId, { assignedTo: null });
   }
 }
