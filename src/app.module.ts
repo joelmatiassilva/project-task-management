@@ -9,7 +9,9 @@ import { TaskController } from './infrastructure/adapters/controllers/task.contr
 import { ProjectService } from './application/services/project.service';
 import { AuthService } from './application/services/auth.service';
 import { TaskService } from './application/services/task.service';
+import { UserService } from './application/services/user.service';
 import { MongoDBProjectRepository } from './infrastructure/database/mongodb/repositories/mongodb-project.repository';
+import { MongoDBUserRepository } from './infrastructure/database/mongodb/repositories/mongodb-user.repository';
 import { MongoDBTaskRepository } from './infrastructure/database/mongodb/repositories/mongodb-task.repository';
 import { User, UserSchema } from './domain/entities/user.entity';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
@@ -68,13 +70,20 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       },
     ]),
   ],
-  controllers: [ProjectController, AuthController, TaskController, PingController],
+  controllers: [
+    ProjectController, 
+    AuthController, 
+    TaskController, 
+    PingController
+  ],
   providers: [
     ProjectService,
     AuthService,
     TaskService,
+    UserService,
     MongoDBProjectRepository,
     MongoDBTaskRepository,
+    MongoDBUserRepository,
     JwtStrategy,
   ],
 })
