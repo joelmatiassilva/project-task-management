@@ -48,7 +48,7 @@ async function bootstrap() {
     const config = new DocumentBuilder()
     .setTitle('Task Management API')
     .setDescription('API for managing projects and tasks')
-    .setVersion('1.2')
+    .setVersion('1.3')
     .addTag('tasks')
     .addBearerAuth()
     .build();
